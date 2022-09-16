@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/solarlune/resolv"
 )
 
 var space *resolv.Space
-var playerObj *resolv.Object
+var playerCollider *resolv.Object
 
 func init() {
 	space = resolv.NewSpace(3376, 480, 16, 16)
@@ -14,8 +16,8 @@ func init() {
 	// 	resolv.NewObject(896, 234, 64, 64),
 	// )
 
-	playerObj = resolv.NewObject(float64(playerDest.X), float64(playerDest.Y), 8, 8)
-	space.Add(playerObj)
+	playerCollider = resolv.NewObject(float64(playerDest.X), float64(playerDest.Y), 8, 8)
+	space.Add(playerCollider)
 
 	for _, current_Pipe := range pipes {
 
@@ -40,4 +42,18 @@ func init() {
 			resolv.NewObject(x, y, width, height, "groundTag"),
 		)
 	}
+
+	for _, current_Block := range blocks {
+
+		x := float64(current_Block.posX)
+		y := float64(current_Block.posY + 6)
+		width := float64(current_Block.width)
+		height := float64(current_Block.height)
+
+		space.Add(
+			resolv.NewObject(x, y, width, height, "blockTag"),
+		)
+	}
+
+	fmt.Println("Pipe details: ", pipes[0])
 }
