@@ -21,7 +21,6 @@ var (
 	bkgColor       = rl.NewColor(147, 211, 196, 255)
 	colliderColor  = rl.NewColor(15, 10, 222, 100)
 	colliderColor2 = rl.NewColor(255, 10, 10, 100)
-	playerAxis     = rl.NewColor(10, 255, 10, 255)
 	// fontColor = rl.NewColor(221, 89, 24, 255)
 
 	bgSprite     rl.Texture2D
@@ -40,14 +39,9 @@ var (
 
 	frameCount int
 
-	velocityX float32 = 3
+	velocityX float32 = 6
 	velocityY float32 = 0
 	gravity   float32 = 0.5
-
-	xInvEntry float32
-	yInvEntry float32
-	xInvExit  float32
-	yInvExit  float32
 
 	musicPaused bool
 	music       rl.Music
@@ -61,8 +55,6 @@ func drawScene() {
 	rl.DrawTexturePro(playerSprite, playerSrc, playerDest, rl.NewVector2(0, 0), 0, rl.White)
 	rl.DrawRectangle(playerDest.ToInt32().X, playerDest.ToInt32().Y, playerDest.ToInt32().Width, playerDest.ToInt32().Height, colliderColor2)
 
-	// rl.DrawLine(int32(playerDest.X), int32(playerDest.Y), playerDest.ToInt32().X+playerDest.ToInt32().Width, playerDest.ToInt32().Y, playerAxis)
-
 	drawColliders()
 }
 
@@ -70,7 +62,15 @@ func update() {
 	running = !rl.WindowShouldClose()
 	playerSrc.X = 0
 
+	// fmt.Println("Is player grounded: ", playerGrounded, " | Is player jumping: ", playerJumping)
+
 	// fmt.Println("Velocity X: ", velocityX, " | Velocity Y: ", velocityY)
+
+	// fmt.Println(playerDest.X, currentPlatform)
+
+	if playerDest.X > currentPlatformEnd || playerDest.X < currentPlatformStart {
+		playerGrounded = false
+	}
 
 	// velocityY += gravity
 	if !playerGrounded {
@@ -122,69 +122,6 @@ func update() {
 
 	playerMoving = false
 	playerLeft, playerRight = false, false
-
-	// //Collision detection
-	// dx := float64(playerDest.X)
-	// dy := float64(playerDest.Y)
-
-	// if collision := playerCollider.Check(dx, 0, "pipeTag"); collision != nil {
-	// 	fmt.Println("Pipe collision detected, dx: ", dx)
-
-	// 	// if playerDir == 1 {
-	// 	// 	dx = float64(collision.ContactWithObject(collision.Objects[0]).X())
-	// 	// } else {
-	// 	// 	dx = float64(collision.ContactWithObject(collision.Objects[0]).X()) * 2
-	// 	// }
-	// 	// playerDest.X += float32(dx64)
-	// 	// playerMoving = false
-
-	// 	// fmt.Println("dx64:", dx64)
-	// 	// fmt.Println(collision.Objects)
-
-	// 	// if playerDir == 1 {
-	// 	// 	canMoveRight = true
-	// 	// 	canMoveLeft = false
-	// 	// } else if playerDir == 0 {
-	// 	// 	canMoveRight = false
-	// 	// 	canMoveLeft = true
-	// 	// }
-	// }
-
-	// if collision := playerCollider.Check(dx, 32, "pipeTag"); collision != nil {
-	// 	fmt.Println("Pipe collision detected, dy: ", dy)
-	// 	objectX := collision.ContactWithObject(collision.Objects[0])
-	// 	playerGrounded = true
-	// 	playerJumping = false
-	// 	fmt.Println("The objects X: ", objectX.X(), " | The objects Y: ", objectX.Y())
-	// 	// fmt.Println(color.Colorize(color.Red, "JUMP END"))
-	// 	// velocityY = 0
-	// }
-
-	// if collision := playerCollider.Check(dy, 0, "groundTag"); collision != nil {
-	// 	// fmt.Println("Floor collision detected")
-	// 	// playerDest.Y = float32(dy64)
-	// 	playerGrounded = true
-	// 	playerJumping = false
-	// 	// fmt.Println(color.Colorize(color.Red, "JUMP END"))
-	// 	// velocityY = 0
-
-	// }
-
-	// if collision := playerCollider.Check(dy, 0, "blockTag"); collision != nil {
-	// 	fmt.Println("Block collision detected")
-	// 	playerGrounded = true
-	// 	playerJumping = false
-	// 	// fmt.Println(color.Colorize(color.Red, "JUMP END"))
-	// 	// velocityY = 0
-	// }
-
-	// playerCollider.X = float64(playerDest.X)
-	// playerCollider.Y = float64(playerDest.Y)
-	// playerCollider.Update()
-	// // playerCollider.X += float32(playerCollider.X)
-
-	// // fmt.Print("playerDest X/Y: ", playerDest.X, playerDest.Y, "| dx/dy: ", dx, dy, "| playerCollider X/Y: ", playerCollider.X, playerCollider.Y, "\n playerDest W/H: ", playerDest.Width, playerDest.Height, " | playerCollider W/H: ", playerCollider.W, playerCollider.H, "\n")
-
 }
 
 func render() {

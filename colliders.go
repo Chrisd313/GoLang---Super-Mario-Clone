@@ -20,10 +20,17 @@ var (
 		// {0, 266, 1104, 20, colliderColor},
 		{450, 234, 28, 32, colliderColor},
 		{608, 218, 32, 48, colliderColor},
+		{736, 202, 32, 64, colliderColor},
+		{912, 202, 32, 64, colliderColor},
+
+		{0, 266, 1104, 32, colliderColor},
+		{1136, 266, 240, 32, colliderColor},
+		{1424, 266, 1024, 32, colliderColor},
+		{2480, 266, 896, 32, colliderColor},
 	}
 
 	grounds = []Collider{
-		{0, 266, 1104, 16, colliderColor},
+		// {0, 266, 1104, 16, colliderColor2},
 	}
 
 	blocks = []Collider{
@@ -31,6 +38,9 @@ var (
 		{352, 202, 16, 16, colliderColor2},
 		{384, 202, 16, 16, colliderColor2},
 	}
+
+	currentPlatformStart float32 = 0
+	currentPlatformEnd   float32 = 0
 )
 
 func drawColliders() {
@@ -47,40 +57,49 @@ func drawColliders() {
 
 			if playerDest.X < float32(current_Pipe.posX) {
 				dx = float32(current_Pipe.posX) - playerDest.Width
+
 			} else if playerDest.X > float32(current_Pipe.posX-current_Pipe.width) {
 				dx = float32(current_Pipe.posX) + float32(current_Pipe.width)
+
 			}
 
 			if playerDest.Y < float32(current_Pipe.posY) {
 				dy = float32(current_Pipe.posY) - (playerDest.Y + playerDest.Height)
-				playerGrounded = true
-				playerJumping = false
 			} else if playerDest.Y > float32(current_Pipe.posY) {
 				dy = float32(current_Pipe.posY) + (float32(current_Pipe.posY) + float32(current_Pipe.height))
+
 			}
 
 			xDistance = dx
 			yDistance = dy
 
-			fmt.Println(xDistance, yDistance)
+			// fmt.Println(xDistance, yDistance)
 
 			var xAxisTimeToCollide float32 = float32(math.Abs(float64(xDistance) / float64(velocityX)))
 			var yAxisTimeToCollide float32 = float32(math.Abs(float64(yDistance) / float64(velocityY)))
 
+			// fmt.Println("X Time: ", xAxisTimeToCollide, " | Y Time: ", yAxisTimeToCollide)
 
 			if xAxisTimeToCollide < yAxisTimeToCollide {
-				fmt.Println("Collision on the X axis")
+
+				// fmt.Println("Collision on the X axis")
 				if playerDest.X < float32(current_Pipe.posX) {
-					playerDest.X = float32(current_Pipe.posX) - playerDest.Width;
+					playerDest.X = float32(current_Pipe.posX) - playerDest.Width
 				} else if playerDest.X > float32(current_Pipe.posX-current_Pipe.width) {
-					playerDest.X = float32(current_Pipe.posX) + float32(current_Pipe.width);
+					playerDest.X = float32(current_Pipe.posX) + float32(current_Pipe.width)
 				}
 			} else {
-				fmt.Println("Collsion on the Y axis")
+				// fmt.Println("Collsion on the Y axis")
+				playerGrounded = true
+				playerJumping = false
+				velocityY = 0
 				playerDest.Y = float32(current_Pipe.posY) - playerDest.Height
 			}
-		} else {
-			playerGrounded = false
+
+			// store the pipes x pos + x width.
+			// run check to make sure the player is on top of it.
+			currentPlatformStart = float32(current_Pipe.posX)
+			currentPlatformEnd = float32(current_Pipe.posX) + float32(current_Pipe.width)
 		}
 	}
 
@@ -89,9 +108,11 @@ func drawColliders() {
 
 		if rl.CheckCollisionRecs(playerDest, rl.NewRectangle(float32(current_Ground.posX), float32(current_Ground.posY), float32(current_Ground.width), float32(current_Ground.height))) {
 			// fmt.Println("Ground collision detected")
-			playerGrounded = true
-			playerJumping = false
-			playerDest.Y = float32(current_Ground.posY - current_Ground.height)
+			if !playerGrounded {
+				playerGrounded = true
+				playerJumping = false
+				playerDest.Y = float32(current_Ground.posY - current_Ground.height)
+			}
 		}
 	}
 

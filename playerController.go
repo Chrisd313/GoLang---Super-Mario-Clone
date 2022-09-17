@@ -22,11 +22,11 @@ func input() {
 		musicPaused = !musicPaused
 	}
 
-	if rl.IsKeyDown(rl.KeyP) && playerGrounded || rl.IsKeyDown(rl.KeySpace) && !playerJumping {
+	if rl.IsKeyDown(rl.KeyP) && playerGrounded || rl.IsKeyDown(rl.KeySpace) && !playerJumping || rl.IsKeyDown(rl.KeyUp) && !playerJumping{
 		startJump()
 	}
 
-	if rl.IsKeyReleased(rl.KeyP) || rl.IsKeyReleased(rl.KeySpace) {
+	if rl.IsKeyReleased(rl.KeyP) || rl.IsKeyReleased(rl.KeySpace) || rl.IsKeyReleased(rl.KeyUp) {
 		endJump()
 	}
 }
@@ -37,7 +37,6 @@ func startJump() {
 		velocityY = -9.0
 		playerGrounded = false
 		playerJumping = true
-
 		playerFrame = 5
 	}
 }

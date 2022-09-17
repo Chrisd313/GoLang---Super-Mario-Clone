@@ -1,5 +1,3 @@
-github.com/TwiN/go-color v1.1.0 h1:yhLAHgjp2iAxmNjDiVb6Z073NE65yoaPlcki1Q22yyQ=
-github.com/TwiN/go-color v1.1.0/go.mod h1:aKVf4e1mD4ai2FtPifkDPP5iyoCwiK08YGzGwerjKo0=
 github.com/gen2brain/raylib-go/raylib v0.0.0-20220829124729-25ea53bfbb90 h1:EC1Xe3xRd771GGxXi8vJeS3ZWhYGBxnH2rHA1kRFwcQ=
 github.com/gen2brain/raylib-go/raylib v0.0.0-20220829124729-25ea53bfbb90/go.mod h1:+NbsqGlEQqGqrsgJFF5Yj2dkvn0ML2SQb8RqM2hJsPU=
 github.com/kvartborg/vector v0.0.0-20200419093813-2cba0cabb4f0 h1:v8lWpj5957KtDMKu+xQtlu6G3ZoZR6Tn9bsfZCRG5Xw=
