@@ -62,21 +62,13 @@ func update() {
 	running = !rl.WindowShouldClose()
 	playerSrc.X = 0
 
-	// fmt.Println("Is player grounded: ", playerGrounded, " | Is player jumping: ", playerJumping)
-
-	// fmt.Println("Velocity X: ", velocityX, " | Velocity Y: ", velocityY)
-
-	// fmt.Println(playerDest.X, currentPlatform)
-
 	if playerDest.X > currentPlatformEnd || playerDest.X < currentPlatformStart {
 		playerGrounded = false
 	}
 
-	// velocityY += gravity
 	if !playerGrounded {
 		velocityY += gravity
 		playerDest.Y += velocityY
-		// playerCollider.Y = float64(playerDest.Y)
 	} else {
 		velocityY = 0
 	}
@@ -86,28 +78,34 @@ func update() {
 		if playerLeft {
 			playerDest.X -= velocityX
 			playerCollider.X = float64(playerDest.X)
-			// fmt.Println(playerDest.X, playerCollider.X)
 		}
 		if playerRight && canMoveRight {
 			playerDest.X += velocityX
 			playerCollider.X = float64(playerDest.X)
 		}
-		if frameCount%8 == 1 {
+		if !playerJumping && frameCount%8 == 1 {
 			playerFrame++
+		} else if playerJumping {
+			playerFrame = 5
 		}
 		playerSrc.X = playerSrc.Width * float32(playerFrame)
+	} else if !playerMoving {
+		if playerJumping {
+			playerFrame = 5
+			playerSrc.X = playerSrc.Width * float32(playerFrame)
+		}
 	}
-
-	// playerDest.Y += velocityY * rl.GetFrameTime()
 
 	frameCount++
-	if !playerJumping && playerFrame > 3 {
-		playerFrame = 0
-	} else if playerJumping {
-		playerFrame = 5
-	} else if !playerMoving {
+	if playerFrame > 3 {
 		playerFrame = 0
 	}
+
+	// if !playerJumping && playerFrame > 3 {
+	// 	playerFrame = 0
+	// } else if playerJumping {
+	// 	playerFrame = 5
+	// }
 
 	playerSrc.Y = playerSrc.Height * float32(playerDir)
 

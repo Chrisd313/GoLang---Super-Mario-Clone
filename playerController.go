@@ -37,7 +37,7 @@ func startJump() {
 		velocityY = -9.0
 		playerGrounded = false
 		playerJumping = true
-		playerFrame = 5
+		// playerFrame = 5
 	}
 }
 
