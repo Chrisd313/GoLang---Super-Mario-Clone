@@ -46,7 +46,16 @@ var (
 	blocks = []Collider{
 		{320, 202, 80, 16, colliderColor2},
 		{256, 202, 16, 16, colliderColor2},
-		{352, 138, 16, 16, colliderColor2},
+		{1232, 202, 48, 16, colliderColor2},
+		{1280, 138, 128, 16, colliderColor2},
+		{1456, 138, 64, 16, colliderColor2},
+		{1504, 202, 16, 16, colliderColor2},
+		{1600, 202, 32, 16, colliderColor2},
+		{1696, 202, 16, 16, colliderColor2},
+		{1744, 202, 16, 16, colliderColor2},
+		{1744, 138, 16, 16, colliderColor2},
+		{1792, 202, 16, 16, colliderColor2},
+		// {352, 138, 16, 16, colliderColor2},
 
 
 		// {352, 202, 16, 16, colliderColor2},
@@ -61,6 +70,12 @@ var (
 		{336, 204, 16, 16, colliderColor3},
 		{368, 204, 16, 16, colliderColor3},
 		{352, 140, 16, 16, colliderColor3},
+		{1248, 204, 16, 16, colliderColor3},
+		{1504, 140, 16, 16, colliderColor3},
+		{1696, 204, 16, 16, colliderColor2},
+		{1744, 204, 16, 16, colliderColor2},
+		{1744, 140, 16, 16, colliderColor2},
+		{1792, 204, 16, 16, colliderColor2},
 	}
 
 	currentPlatformStart float32 = 0
@@ -105,6 +120,8 @@ func drawColliders() {
 
 			if xAxisTimeToCollide < yAxisTimeToCollide {
 
+				playerJumping = false
+
 				// fmt.Println("Collision on the X axis")
 				if playerDest.X < float32(current_Pipe.posX) {
 					canMoveRight = false
@@ -116,9 +133,6 @@ func drawColliders() {
 				}
 			} else {
 				// fmt.Println("Collsion on the Y axis")
-
-				// fmt.Println("Player Y: ", playerDest.Y, "| Collider Y: ", current_Pipe.posY, "\n Player X: ", playerDest.X, "| Collider X: ", current_Pipe.posX)
-
 				playerDest.Y = float32(current_Pipe.posY) - playerDest.Height
 				playerGrounded = true
 				playerJumping = false
@@ -148,6 +162,8 @@ func drawColliders() {
 			// fmt.Println("X Time: ", xAxisTimeToCollide, " | Y Time: ", yAxisTimeToCollide)
 
 			if xAxisTimeToCollide < yAxisTimeToCollide {
+
+				playerJumping = false
 
 				// fmt.Println("Collision on the X axis")
 				if playerDest.X < float32(current_Ground.posX) {
@@ -191,6 +207,9 @@ func drawColliders() {
 			// fmt.Println("X Time: ", xAxisTimeToCollide, " | Y Time: ", yAxisTimeToCollide)
 
 			if xAxisTimeToCollide < yAxisTimeToCollide {
+
+				playerJumping = false
+
 				// fmt.Println("Collision on the X axis")
 				if playerDest.X < float32(current_Block.posX) {
 					playerDest.X = float32(current_Block.posX) - playerDest.Width
@@ -244,6 +263,9 @@ func drawColliders() {
 			// fmt.Println("X Time: ", xAxisTimeToCollide, " | Y Time: ", yAxisTimeToCollide)
 
 			if xAxisTimeToCollide < yAxisTimeToCollide {
+
+				playerJumping = false
+
 				// fmt.Println("Collision on the X axis")
 				if playerDest.X < float32(current_coinBlock.posX) {
 					playerDest.X = float32(current_coinBlock.posX) - playerDest.Width
