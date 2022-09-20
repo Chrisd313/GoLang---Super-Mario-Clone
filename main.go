@@ -21,6 +21,7 @@ var (
 	bkgColor       = rl.NewColor(147, 211, 196, 255)
 	colliderColor  = rl.NewColor(15, 10, 222, 100)
 	colliderColor2 = rl.NewColor(255, 10, 10, 100)
+	colliderColor3 = rl.NewColor(0, 255, 255, 100)
 	// fontColor = rl.NewColor(221, 89, 24, 255)
 
 	bgSprite     rl.Texture2D
@@ -39,12 +40,14 @@ var (
 
 	frameCount int
 
-	velocityX float32 = 6
+	velocityX float32 = 3
 	velocityY float32 = 0
 	gravity   float32 = 0.5
 
 	musicPaused bool
 	music       rl.Music
+
+	coinCount int
 
 	cam rl.Camera2D
 )
@@ -55,15 +58,22 @@ func drawScene() {
 	rl.DrawTexturePro(playerSprite, playerSrc, playerDest, rl.NewVector2(0, 0), 0, rl.White)
 	rl.DrawRectangle(playerDest.ToInt32().X, playerDest.ToInt32().Y, playerDest.ToInt32().Width, playerDest.ToInt32().Height, colliderColor2)
 
+	rl.DrawCircle(playerDest.ToInt32().X, playerDest.ToInt32().Y, 2, debugColorYellow)
+	rl.DrawCircle(playerDest.ToInt32().X+int32(playerDest.Width), playerDest.ToInt32().Y, 2, debugColorPurple)
+	rl.DrawCircle(playerDest.ToInt32().X, playerDest.ToInt32().Y+playerDest.ToInt32().Height, 2, debugColorTeal)
+	rl.DrawCircle(playerDest.ToInt32().X+playerDest.ToInt32().Width, playerDest.ToInt32().Y+int32(playerDest.Height), 2, debugColor)
+
 	drawColliders()
 }
 
 func update() {
+
 	running = !rl.WindowShouldClose()
 	playerSrc.X = 0
 
 	if playerDest.X > currentPlatformEnd || playerDest.X < currentPlatformStart {
 		playerGrounded = false
+		velocityX = 3
 	}
 
 	if !playerGrounded {
@@ -73,15 +83,23 @@ func update() {
 		velocityY = 0
 	}
 
+	if playerDest.Y+playerDest.Height < colliderHeight {
+		canMoveLeft = true
+		canMoveRight = true
+	}
+
+	playerCollider.X = float64(playerDest.X)
+	playerCollider.Y = float64(playerDest.Y)
+
 	// HORIZONTAL MOVEMENT
 	if playerMoving {
 		if playerLeft {
 			playerDest.X -= velocityX
-			playerCollider.X = float64(playerDest.X)
+			// playerCollider.X = float64(playerDest.X)
 		}
 		if playerRight && canMoveRight {
 			playerDest.X += velocityX
-			playerCollider.X = float64(playerDest.X)
+			// playerCollider.X = float64(playerDest.X)
 		}
 		if !playerJumping && frameCount%8 == 1 {
 			playerFrame++

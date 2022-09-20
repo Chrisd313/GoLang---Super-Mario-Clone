@@ -4,6 +4,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+
 func input() {
 	if rl.IsKeyDown(rl.KeyA) && canMoveLeft || rl.IsKeyDown(rl.KeyLeft) && canMoveLeft {
 		playerMoving = true
@@ -22,7 +23,7 @@ func input() {
 		musicPaused = !musicPaused
 	}
 
-	if rl.IsKeyDown(rl.KeyP) && playerGrounded || rl.IsKeyDown(rl.KeySpace) && !playerJumping || rl.IsKeyDown(rl.KeyUp) && !playerJumping{
+	if rl.IsKeyPressed(rl.KeyP) && playerGrounded || rl.IsKeyPressed(rl.KeySpace) && playerGrounded || rl.IsKeyPressed(rl.KeyUp) && playerGrounded {
 		startJump()
 	}
 
@@ -38,6 +39,8 @@ func startJump() {
 		playerGrounded = false
 		playerJumping = true
 		// playerFrame = 5
+		var jumpSFX = rl.LoadSound("assets/sfx/jump.wav")
+		rl.PlaySound(jumpSFX)
 	}
 }
 
@@ -45,4 +48,9 @@ func endJump() {
 	if velocityY < -5.0 {
 		velocityY = -5.0
 	}
+}
+
+func cancelJump(){
+	playerJumping = false
+	velocityY = -5.0
 }
