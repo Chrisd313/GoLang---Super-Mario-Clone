@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -17,15 +19,19 @@ add var canJump as a bool
 */
 
 var (
-	running        = true
-	bkgColor       = rl.NewColor(147, 211, 196, 255)
-	colliderColor  = rl.NewColor(15, 10, 222, 100)
-	colliderColor2 = rl.NewColor(255, 10, 10, 100)
-	colliderColor3 = rl.NewColor(0, 255, 255, 100)
+	debugColliderAlpha int = 0 // Alpha color control for debug colliders, switch to zero if want to turn off debugging.
+	running                = true
+	bkgColor               = rl.NewColor(147, 211, 196, 255)
+	colliderColor          = rl.NewColor(15, 10, 222, uint8(debugColliderAlpha))
+	colliderColor2         = rl.NewColor(255, 10, 10, uint8(debugColliderAlpha))
+	colliderColor3         = rl.NewColor(0, 255, 255, uint8(debugColliderAlpha))
 	// fontColor = rl.NewColor(221, 89, 24, 255)
 
-	bgSprite     rl.Texture2D
-	playerSprite rl.Texture2D
+	bgSprite           rl.Texture2D
+	playerSprite       rl.Texture2D
+	blockSprite        rl.Texture2D
+	coinBlockSprite    rl.Texture2D
+	coinBlockHitSprite rl.Texture2D
 
 	playerSrc               rl.Rectangle
 	playerDest              rl.Rectangle
@@ -46,6 +52,9 @@ var (
 
 	musicPaused bool
 	music       rl.Music
+	deathSFX    rl.Sound
+	bumpSFX     rl.Sound
+	coinSFX     rl.Sound
 
 	coinCount int
 
@@ -58,22 +67,26 @@ func drawScene() {
 	rl.DrawTexturePro(playerSprite, playerSrc, playerDest, rl.NewVector2(0, 0), 0, rl.White)
 	rl.DrawRectangle(playerDest.ToInt32().X, playerDest.ToInt32().Y, playerDest.ToInt32().Width, playerDest.ToInt32().Height, colliderColor2)
 
-	rl.DrawCircle(playerDest.ToInt32().X, playerDest.ToInt32().Y, 2, debugColorYellow)
-	rl.DrawCircle(playerDest.ToInt32().X+int32(playerDest.Width), playerDest.ToInt32().Y, 2, debugColorPurple)
-	rl.DrawCircle(playerDest.ToInt32().X, playerDest.ToInt32().Y+playerDest.ToInt32().Height, 2, debugColorTeal)
-	rl.DrawCircle(playerDest.ToInt32().X+playerDest.ToInt32().Width, playerDest.ToInt32().Y+int32(playerDest.Height), 2, debugColor)
+	// rl.DrawCircle(playerDest.ToInt32().X, playerDest.ToInt32().Y, 2, debugColorYellow)
+	// rl.DrawCircle(playerDest.ToInt32().X+int32(playerDest.Width), playerDest.ToInt32().Y, 2, debugColorPurple)
+	// rl.DrawCircle(playerDest.ToInt32().X, playerDest.ToInt32().Y+playerDest.ToInt32().Height, 2, debugColorTeal)
+	// rl.DrawCircle(playerDest.ToInt32().X+playerDest.ToInt32().Width, playerDest.ToInt32().Y+int32(playerDest.Height), 2, debugColor)
 
 	drawColliders()
+	deathCollider()
 }
 
 func update() {
 
-	running = !rl.WindowShouldClose()
-	playerSrc.X = 0
+	fmt.Println(playerDest.Y)
 
-	if playerDest.X > currentPlatformEnd || playerDest.X < currentPlatformStart {
+	running = !rl.WindowShouldClose()
+	// playerSrc.X = 0
+
+	// fmt.Println(currentPlatformStart, currentPlatformEnd)
+
+	if playerDest.X > currentPlatformEnd || playerDest.X+playerDest.Width < currentPlatformStart {
 		playerGrounded = false
-		velocityX = 3
 	}
 
 	if !playerGrounded {
@@ -88,43 +101,6 @@ func update() {
 		canMoveRight = true
 	}
 
-	playerCollider.X = float64(playerDest.X)
-	playerCollider.Y = float64(playerDest.Y)
-
-	// HORIZONTAL MOVEMENT
-	if playerMoving {
-		if playerLeft {
-			playerDest.X -= velocityX
-			// playerCollider.X = float64(playerDest.X)
-		}
-		if playerRight && canMoveRight {
-			playerDest.X += velocityX
-			// playerCollider.X = float64(playerDest.X)
-		}
-		if !playerJumping && frameCount%8 == 1 {
-			playerFrame++
-		} else if playerJumping {
-			playerFrame = 5
-		}
-		playerSrc.X = playerSrc.Width * float32(playerFrame)
-	} else if !playerMoving {
-		if playerJumping {
-			playerFrame = 5
-			playerSrc.X = playerSrc.Width * float32(playerFrame)
-		}
-	}
-
-	frameCount++
-	if playerFrame > 3 {
-		playerFrame = 0
-	}
-
-	// if !playerJumping && playerFrame > 3 {
-	// 	playerFrame = 0
-	// } else if playerJumping {
-	// 	playerFrame = 5
-	// }
-
 	playerSrc.Y = playerSrc.Height * float32(playerDir)
 
 	rl.UpdateMusicStream(music)
@@ -138,6 +114,14 @@ func update() {
 
 	playerMoving = false
 	playerLeft, playerRight = false, false
+
+	// if playerDest.Y > 300 {
+	// 	fmt.Println("PLAYER DEAD")
+	// 	rl.StopMusicStream(music)
+	// 	rl.PlaySound(deathSFX)
+
+	// }
+	// fmt.Println(playerSpeed)
 }
 
 func render() {
@@ -158,12 +142,19 @@ func init() {
 
 	bgSprite = rl.LoadTexture("assets/images/bg1.png")
 	playerSprite = rl.LoadTexture("assets/images/mario.png")
+	blockSprite = rl.LoadTexture("assets/images/block.png")
+	coinBlockSprite = rl.LoadTexture("assets/images/coinBlock.png")
+	coinBlockHitSprite = rl.LoadTexture("assets/images/coinBlockHit.png")
 
 	playerSrc = rl.NewRectangle(0, 0, 16, 16)
 	playerDest = rl.NewRectangle(200, 200, 16, 16)
 
 	rl.InitAudioDevice()
 	music = rl.LoadMusicStream("assets/music/01_Running_About.mp3")
+	deathSFX = rl.LoadSound("assets/sfx/death.wav")
+	bumpSFX = rl.LoadSound("assets/sfx/bump.wav")
+	coinSFX = rl.LoadSound("assets/sfx/coin.wav")
+
 	musicPaused = false
 	rl.PlayMusicStream(music)
 
