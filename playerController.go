@@ -7,9 +7,18 @@ import (
 var (
 	playerSpeed        float32 = 0
 	playerMaxSpeed     float32 = 120
-	playerAcceleration float32 = 100
-	movementH          float32 = 0
-	movementV          float32 = 0
+	playerAcceleration float32 = 200
+
+	playerSrc    rl.Rectangle
+	playerDest   rl.Rectangle
+	playerMoving bool
+	playerDir    int
+	// playerRight, playerLeft bool
+	playerFrame    int
+	canMoveRight   bool = true
+	canMoveLeft    bool = true
+	playerGrounded bool = false
+	playerJumping  bool = false
 )
 
 func input() {
@@ -20,25 +29,25 @@ func input() {
 		playerMoving = true
 		playerDir = 1
 		// playerLeft = true
-		// canMoveRight = true
-		// playerDest.X -= velocityX
+		canMoveRight = true
+		playerDest.X -= velocityX
 		// fmt.Println(velocityX + (playerMaxSpeed * playerAcceleration * rl.GetFrameTime()))
-		if playerSpeed > -playerMaxSpeed {
-			playerSpeed = playerSpeed - (playerAcceleration * rl.GetFrameTime())
-		}
+		// if playerSpeed > -playerMaxSpeed {
+		// 	playerSpeed = playerSpeed - (playerAcceleration * rl.GetFrameTime())
+		// }
 
 	} else if rl.IsKeyDown(rl.KeyD) && canMoveRight || rl.IsKeyDown(rl.KeyRight) && canMoveRight {
 		playerMoving = true
 		playerDir = 0
 		// playerRight = true
-		// canMoveLeft = true
+		canMoveLeft = true
 
 		// // velocityX += playerAcceleration * rl.GetFrameTime()
 		// fmt.Println(velocityX + (playerMoveSpeed*playerAcceleration*rl.GetFrameTime()))
-		// playerDest.X += velocityX
-		if playerSpeed < playerMaxSpeed {
-			playerSpeed = playerSpeed + (playerAcceleration * rl.GetFrameTime())
-		}
+		playerDest.X += velocityX
+		// if playerSpeed < playerMaxSpeed {
+		// 	playerSpeed = playerSpeed + (playerAcceleration * rl.GetFrameTime())
+		// }
 	} else {
 		playerSpeed = 0
 		playerMoving = false
@@ -76,7 +85,7 @@ func input() {
 	playerSrc.X = playerSrc.Width * float32(playerFrame)
 
 	if playerMoving {
-		if !playerJumping && frameCount%8 == 1 {
+		if !playerJumping && frameCount% 8 == 1 {
 			playerFrame++
 		} else if playerJumping {
 			playerFrame = 5
@@ -97,6 +106,10 @@ func input() {
 	} else if playerJumping {
 		playerFrame = 5
 	}
+
+	if rl.IsKeyPressed(rl.KeyEnter) {
+		initFunc()
+	}
 }
 
 func startJump() {
@@ -110,6 +123,7 @@ func startJump() {
 		// playerFrame = 5
 		var jumpSFX = rl.LoadSound("assets/sfx/jump.wav")
 		rl.PlaySound(jumpSFX)
+		
 	}
 }
 
