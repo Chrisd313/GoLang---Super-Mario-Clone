@@ -8,6 +8,7 @@ var (
 	playerSpeed        float32 = 0
 	playerMaxSpeed     float32 = 120
 	playerAcceleration float32 = 200
+	// jumpSpeed float32 = 2
 
 	playerSrc    rl.Rectangle
 	playerDest   rl.Rectangle
@@ -25,41 +26,49 @@ func input() {
 
 	playerSrc.X = 0
 
-	if rl.IsKeyDown(rl.KeyA) && canMoveLeft || rl.IsKeyDown(rl.KeyLeft) && canMoveLeft {
+	if rl.IsKeyDown(rl.KeyA) && canMoveLeft {
 		playerMoving = true
 		playerDir = 1
-		// playerLeft = true
 		canMoveRight = true
 		playerDest.X -= velocityX
-		// fmt.Println(velocityX + (playerMaxSpeed * playerAcceleration * rl.GetFrameTime()))
-		// if playerSpeed > -playerMaxSpeed {
-		// 	playerSpeed = playerSpeed - (playerAcceleration * rl.GetFrameTime())
-		// }
-
-	} else if rl.IsKeyDown(rl.KeyD) && canMoveRight || rl.IsKeyDown(rl.KeyRight) && canMoveRight {
+	} else if rl.IsKeyDown(rl.KeyD) && canMoveRight {
 		playerMoving = true
 		playerDir = 0
-		// playerRight = true
 		canMoveLeft = true
-
-		// // velocityX += playerAcceleration * rl.GetFrameTime()
-		// fmt.Println(velocityX + (playerMoveSpeed*playerAcceleration*rl.GetFrameTime()))
 		playerDest.X += velocityX
-		// if playerSpeed < playerMaxSpeed {
-		// 	playerSpeed = playerSpeed + (playerAcceleration * rl.GetFrameTime())
-		// }
+	} else if rl.IsKeyDown(rl.KeyLeft) && canMoveLeft {
+		playerMoving = true
+		playerDir = 1
+		canMoveRight = true
+		if playerSpeed > -playerMaxSpeed {
+			playerSpeed = playerSpeed - (playerAcceleration * rl.GetFrameTime())
+		}
+		if playerSpeed > 0 && !playerJumping {
+			playerFrame = 4
+		}
+	} else if rl.IsKeyDown(rl.KeyRight) && canMoveRight {
+		playerMoving = true
+		playerDir = 0
+		canMoveLeft = true
+		if playerSpeed < playerMaxSpeed {
+			playerSpeed = playerSpeed + (playerAcceleration * rl.GetFrameTime())
+		}
+		if playerSpeed < 0 && !playerJumping {
+			playerFrame = 4
+		}
 	} else {
-		playerSpeed = 0
-		playerMoving = false
+		// fmt.Println(playerSpeed)
+		if playerSpeed > 1.5 {
+			playerSpeed = playerSpeed - (playerAcceleration * rl.GetFrameTime())
+		} else if playerSpeed < -1.5 {
+			playerSpeed = playerSpeed + (playerAcceleration * rl.GetFrameTime())
+		} else {
+			playerSpeed = 0
+		}
 		playerFrame = 0
-
 	}
 
-	if rl.IsKeyReleased(rl.KeyA) || rl.IsKeyReleased(rl.KeyLeft) || rl.IsKeyReleased(rl.KeyD) || rl.IsKeyReleased(rl.KeyRight) {
-		playerSpeed = 0
-		playerMoving = false
-		playerFrame = 0
-	}
+	playerSrc.X = playerSrc.Width * float32(playerFrame)
 
 	playerDest.X = playerDest.X + playerSpeed*rl.GetFrameTime()
 
@@ -67,25 +76,26 @@ func input() {
 		musicPaused = !musicPaused
 	}
 
-	if rl.IsKeyPressed(rl.KeyP) && playerGrounded || rl.IsKeyPressed(rl.KeySpace) && playerGrounded || rl.IsKeyPressed(rl.KeyUp) && playerGrounded {
-
-		playerSpeed = playerSpeed - (playerAcceleration * rl.GetFrameTime())
-
+	if rl.IsKeyPressed(rl.KeySpace) || rl.IsKeyPressed(rl.KeyUp) {
 		startJump()
 	}
 
-	if rl.IsKeyReleased(rl.KeyP) || rl.IsKeyReleased(rl.KeySpace) || rl.IsKeyReleased(rl.KeyUp) {
+	if rl.IsKeyReleased(rl.KeySpace) || rl.IsKeyReleased(rl.KeyUp) {
 		endJump()
 	}
 
-	if rl.IsKeyPressed(rl.KeyM) {
-		debugColliderAlpha = 0
+	if rl.IsKeyPressed(rl.KeyEnter) && gameOver {
+		playerDest = rl.NewRectangle(200, 200, 16, 16)
+		canMoveLeft = true
+		canMoveRight = true
+		gameOver = false
+		rl.PlayMusicStream(music)
+		drawScene()
+		rl.StopAudioStream(deathSFX.Stream)
 	}
 
-	playerSrc.X = playerSrc.Width * float32(playerFrame)
-
 	if playerMoving {
-		if !playerJumping && frameCount% 8 == 1 {
+		if !playerJumping && frameCount%8 == 1 {
 			playerFrame++
 		} else if playerJumping {
 			playerFrame = 5
@@ -107,23 +117,15 @@ func input() {
 		playerFrame = 5
 	}
 
-	if rl.IsKeyPressed(rl.KeyEnter) {
-		initFunc()
-	}
 }
 
 func startJump() {
-	playerDest.Y = playerDest.Y - playerSpeed*rl.GetFrameTime()
-
 	if playerGrounded {
-		// fmt.Println(color.Colorize(color.Green, "JUMP START"))
 		velocityY = -9
 		playerGrounded = false
 		playerJumping = true
-		// playerFrame = 5
 		var jumpSFX = rl.LoadSound("assets/sfx/jump.wav")
 		rl.PlaySound(jumpSFX)
-		
 	}
 }
 

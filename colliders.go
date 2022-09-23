@@ -27,6 +27,9 @@ var (
 		{2608, 234, 32, 32, colliderColor},
 		{2864, 234, 32, 32, colliderColor},
 
+		{-20, 80, 20, 300, colliderColor},
+		{3376, 80, 20, 300, colliderColor},
+
 		//RAMPS
 		{2144, 250, 16, 16, colliderColor},
 		{2160, 234, 16, 32, colliderColor},
@@ -49,21 +52,10 @@ var (
 		{2512, 234, 16, 32, colliderColor},
 		{2528, 250, 16, 16, colliderColor},
 
-		{2896, 250, 16, 16, colliderColor},
-		{2912, 234, 16, 32, colliderColor},
-		{2928, 218, 16, 48, colliderColor},
-		{2944, 202, 16, 64, colliderColor},
-		{2960, 186, 16, 80, colliderColor},
-		{2976, 170, 16, 96, colliderColor},
-		{2992, 154, 16, 112, colliderColor},
-		{3008, 138, 16, 128, colliderColor},
-		{3024, 138, 16, 128, colliderColor},
+		{3168, 250, 16, 16, colliderColor},
 	}
 
 	grounds = []Collider{
-
-		// {0, 266, 3000, 32, colliderColor}, //DEBUG
-
 		//FLOOR 1
 		{0, 266, 1104, 1000, colliderColor},
 
@@ -85,7 +77,6 @@ var (
 		{368, 202, 16, 16, colliderColor2},
 		{384, 202, 16, 16, colliderColor2},
 		{352, 138, 16, 16, colliderColor2},
-
 
 		{1232, 202, 16, 16, colliderColor2},
 		{1248, 202, 16, 16, colliderColor2},
@@ -133,14 +124,6 @@ var (
 		{2704, 202, 16, 16, colliderColor2},
 		{2720, 202, 16, 16, colliderColor2},
 		{2736, 202, 16, 16, colliderColor2},
-
-		// {352, 138, 16, 16, colliderColor2},
-
-		// {352, 202, 16, 16, colliderColor2},
-		// {384, 202, 16, 16, colliderColor2},
-
-		// {336, 202, 16, 16, colliderColor3},
-		// {368, 202, 16, 16, colliderColor3},
 	}
 
 	coinBlocks = []Collider{
@@ -181,17 +164,12 @@ var (
 
 	currentPlatformStart float32 = 0
 	currentPlatformEnd   float32 = 0
-	blockFrame float32
-
-	// debugColorYellow = rl.NewColor(255, 255, 10, 255)
-
-	// debugColorPurple = rl.NewColor(255, 50, 255, 255)
-
-	// debugColorTeal = rl.NewColor(50, 255, 255, 255)
-
-	// debugColor = rl.NewColor(100, 255, 10, 255)
-
 	colliderHeight float32
+
+	debugColorYellow = rl.NewColor(255, 255, 10, uint8(debugColliderAlpha))
+	debugColorPurple = rl.NewColor(255, 50, 255, uint8(debugColliderAlpha))
+	debugColorTeal = rl.NewColor(50, 255, 255, uint8(debugColliderAlpha))
+	debugColor = rl.NewColor(100, 255, 10, uint8(debugColliderAlpha))
 )
 
 func deathCollider() {
@@ -199,8 +177,6 @@ func deathCollider() {
 	var deathColliderRec rl.Rectangle = rl.NewRectangle(-200, 400, 3000, 10)
 
 	if rl.CheckCollisionRecs(playerDest, deathColliderRec) {
-
-		fmt.Println(color.Colorize(color.Red, "DEAD"))
 		rl.StopMusicStream(music)
 		rl.PlaySound(deathSFX)
 		playerDest.Y = float32(deathColliderRec.Y+50) - playerDest.Height
@@ -209,6 +185,7 @@ func deathCollider() {
 		velocityY = 0
 		canMoveLeft = false
 		canMoveRight = false
+		gameOver = true
 	}
 }
 
@@ -218,10 +195,10 @@ func drawColliders() {
 	for _, current_StaticItem := range staticItems {
 		rl.DrawRectangle(current_StaticItem.posX, current_StaticItem.posY, current_StaticItem.width, current_StaticItem.height, current_StaticItem.Color)
 
-		// rl.DrawCircle(current_StaticItem.posX, current_StaticItem.posY, 2, debugColorYellow)
-		// rl.DrawCircle(current_StaticItem.posX+current_StaticItem.width, current_StaticItem.posY, 2, debugColorPurple)
-		// rl.DrawCircle(current_StaticItem.posX, current_StaticItem.posY+current_StaticItem.height, 2, debugColorTeal)
-		// rl.DrawCircle(current_StaticItem.posX+current_StaticItem.width, current_StaticItem.posY+current_StaticItem.height, 2, debugColor)
+		rl.DrawCircle(current_StaticItem.posX, current_StaticItem.posY, 2, debugColorYellow)
+		rl.DrawCircle(current_StaticItem.posX+current_StaticItem.width, current_StaticItem.posY, 2, debugColorPurple)
+		rl.DrawCircle(current_StaticItem.posX, current_StaticItem.posY+current_StaticItem.height, 2, debugColorTeal)
+		rl.DrawCircle(current_StaticItem.posX+current_StaticItem.width, current_StaticItem.posY+current_StaticItem.height, 2, debugColor)
 
 		if rl.CheckCollisionRecs(playerDest, rl.NewRectangle(float32(current_StaticItem.posX), float32(current_StaticItem.posY), float32(current_StaticItem.width), float32(current_StaticItem.height))) {
 
@@ -233,10 +210,8 @@ func drawColliders() {
 
 			xDistance, yDistance = CalculateAABBDistanceTo(current_StaticItem)
 
-
 			var xAxisTimeToCollide float32 = float32(math.Abs(float64(xDistance) / float64(velocityX)))
 			var yAxisTimeToCollide float32 = float32(math.Abs(float64(yDistance) / float64(velocityY)))
-
 
 			if xAxisTimeToCollide < yAxisTimeToCollide {
 
@@ -269,9 +244,8 @@ func drawColliders() {
 
 	for _, current_Ground := range grounds {
 		rl.DrawRectangle(current_Ground.posX, current_Ground.posY, current_Ground.width, current_Ground.height, current_Ground.Color)
-		// var thisRectangle rl.Rectangle = rl.NewRectangle((current_Ground.posX, current_Ground.posY, current_Ground.width, current_Ground.height, current_Ground.Color))
 
-		if rl.CheckCollisionRecs(playerDest, rl.NewRectangle(float32(current_Ground.posX), float32(current_Ground.posY), float32(current_Ground.width), float32(current_Ground.height))) {
+		if rl.CheckCollisionRecs(playerDest, rl.NewRectangle(float32(current_Ground.posX), float32(current_Ground.posY),float32(current_Ground.width), float32(current_Ground.height))) {
 
 			currentPlatformStart = float32(current_Ground.posX)
 			currentPlatformEnd = float32(current_Ground.posX) + float32(current_Ground.width)
@@ -281,18 +255,13 @@ func drawColliders() {
 
 			xDistance, yDistance = CalculateAABBDistanceTo(current_Ground)
 
-			// fmt.Println(xDistance, yDistance)
-
 			var xAxisTimeToCollide float32 = float32(math.Abs(float64(xDistance) / float64(velocityX)))
 			var yAxisTimeToCollide float32 = float32(math.Abs(float64(yDistance) / float64(velocityY)))
-
-			// fmt.Println("X Time: ", xAxisTimeToCollide, " | Y Time: ", yAxisTimeToCollide)
 
 			if xAxisTimeToCollide < yAxisTimeToCollide {
 
 				playerJumping = false
 
-				// fmt.Println("Collision on the X axis")
 				if playerDest.X < float32(current_Ground.posX) {
 					canMoveRight = false
 					playerDest.X = float32(current_Ground.posX) - playerDest.Width
@@ -302,18 +271,11 @@ func drawColliders() {
 					canMoveLeft = false
 				}
 			} else {
-				// fmt.Println("Collsion on the Y axis")
-				// fmt.Println("Player Y: ", playerDest.Y, "| Collider Y: ", current_StaticItem.posY, "\n Player X: ", playerDest.X, "| Collider X: ", current_StaticItem.posX)
-
 				playerDest.Y = float32(current_Ground.posY) - playerDest.Height
 				playerGrounded = true
 				playerJumping = false
 				velocityY = 0
 			}
-		}
-
-		if rl.CheckCollisionRecs(rl.NewRectangle(float32(current_Ground.posX), float32(current_Ground.posY), float32(current_Ground.width), float32(current_Ground.height)), goombaDest) {
-			fmt.Println("hit detected")
 		}
 	}
 
@@ -324,11 +286,8 @@ func drawColliders() {
 
 		blockSrc.X = 0
 		blockSrc.Y = 2
-		// var blockSrc rl.Rectangle
-		// var blockDest rl.Rectangle
 
 		rl.DrawRectangle(current_Block.posX, current_Block.posY, current_Block.width, current_Block.height, current_Block.Color)
-		// rl.DrawTexture(blockSprite, current_Block.posX, current_Block.posY, rl.White)
 		rl.DrawTexturePro(blockSprite, blockSrc, blockDest, rl.NewVector2(0, 0), 0, rl.White)
 
 		if rl.CheckCollisionRecs(playerDest, rl.NewRectangle(float32(current_Block.posX), float32(current_Block.posY), float32(current_Block.width), float32(current_Block.height))) {
@@ -355,14 +314,10 @@ func drawColliders() {
 				if playerDest.X < float32(current_Block.posX) {
 					playerDest.X = float32(current_Block.posX) - playerDest.Width
 					playerJumping = false
-					// colliderHeight = float32(current_Block.posY)
 					fmt.Println("Triggered LEFT")
 				} else if playerDest.X > float32(current_Block.posX-current_Block.width) {
-					// playerDest.X = float32(current_Block.posX) + float32(current_Block.width)
 					playerJumping = false
-					// colliderHeight = float32(current_Block.posY)
 					fmt.Println("Triggered RIGHT")
-
 				}
 			} else {
 
@@ -385,37 +340,21 @@ func drawColliders() {
 		}
 	}
 
-	// i := 0
-
 	for _, current_coinBlockHit := range coinBlocksHit {
 		rl.DrawTexture(coinBlockHitSprite, current_coinBlockHit.posX, current_coinBlockHit.posY-2, rl.White)
 	}
 
 	for i, current_coinBlock := range coinBlocks {
 
-		var coinBlockSrc rl.Rectangle = rl.NewRectangle(0, 0, float32(current_coinBlock.width),float32(current_coinBlock.height))
-		rl.DrawRectangle(current_coinBlock.posX, current_coinBlock.posY, current_coinBlock.width, current_coinBlock.height, current_coinBlock.Color)
-		rl.DrawTexture(coinBlockSprite, current_coinBlock.posX, current_coinBlock.posY-2, rl.White)
-		// rl.DrawTexturePro(coinBlockSprite, coinBlockSrc, rl.NewRectangle(float32(current_coinBlock.posX), float32(current_coinBlock.posY -3), float32(current_coinBlock.width),float32(current_coinBlock.height)), rl.NewVector2(0, 0), 0, rl.White)
+		rl.DrawRectangle(current_coinBlock.posX, current_coinBlock.posY, 
+			current_coinBlock.width, current_coinBlock.height, 
+			current_coinBlock.Color)
 
-		// coinBlockSrc.X = playerSrc.Width * blockFrame
+		rl.DrawTexture(coinBlockSprite, current_coinBlock.posX, 
+			current_coinBlock.posY-3, rl.White)
 
-		// if frameCount % 30 == 1{
-		// 	blockFrame++
-		// 	// fmt.Println(123)
-		// }
-
-		// if blockFrame > 4 {
-		// 	blockFrame = 0
-		// }
-		// rl.DrawTexturePro(coinBlockSprite, coinBlockSrc, rl.NewRectangle(float32(current_coinBlock.posX), float32(current_coinBlock.posY -3), float32(current_coinBlock.width),float32(current_coinBlock.height)), rl.NewVector2(0, 0), 0, rl.White)
-
-
-		fmt.Println(blockFrame, coinBlockSrc)
-
-		// var beenHit bool = false
-
-		if rl.CheckCollisionRecs(playerDest, rl.NewRectangle(float32(current_coinBlock.posX), float32(current_coinBlock.posY), float32(current_coinBlock.width), float32(current_coinBlock.height))) {
+		if rl.CheckCollisionRecs(playerDest, rl.NewRectangle(float32(current_coinBlock.posX), float32(current_coinBlock.posY),
+			float32(current_coinBlock.width), float32(current_coinBlock.height))) {
 
 			currentPlatformStart = float32(current_coinBlock.posX)
 			currentPlatformEnd = float32(current_coinBlock.posX) + float32(current_coinBlock.width)
@@ -425,30 +364,20 @@ func drawColliders() {
 
 			xDistance, yDistance = CalculateAABBDistanceTo(current_coinBlock)
 
-			// fmt.Println(xDistance, yDistance)
-
 			var xAxisTimeToCollide float32 = float32(math.Abs(float64(xDistance) / float64(velocityX)))
 			var yAxisTimeToCollide float32 = float32(math.Abs(float64(yDistance) / float64(velocityY)))
 
-			fmt.Println("COIN", xAxisTimeToCollide, yAxisTimeToCollide)
-
-
 			if xAxisTimeToCollide < yAxisTimeToCollide {
-
-				// playerJumping = false
 				if playerDest.X < float32(current_coinBlock.posX) {
 					playerDest.X = float32(current_coinBlock.posX) - playerDest.Width
-					// playerJumping = false
 				} else if playerDest.X > float32(current_coinBlock.posX-current_coinBlock.width) {
 					playerDest.X = float32(current_coinBlock.posX) + float32(current_coinBlock.width)
-					// playerJumping = false
 				}
 			} else {
 
 				if playerDest.Y < float32(current_coinBlock.posY) {
 					playerDest.Y = float32(current_coinBlock.posY) - playerDest.Height
 					playerGrounded = true
-					// playerJumping = false
 					velocityY = 0
 				} else if playerDest.Y > float32(current_coinBlock.posY) && playerJumping {
 					playerDest.Y = float32(current_coinBlock.posY) + float32(current_coinBlock.height)
@@ -461,7 +390,6 @@ func drawColliders() {
 					rl.PlaySound(coinSFX)
 				} else {
 					playerDest.Y = float32(current_coinBlock.posY) + float32(current_coinBlock.height)
-					// playerJumping = false
 					velocityY = 0
 				}
 				playerJumping = false
@@ -473,6 +401,7 @@ func drawColliders() {
 }
 
 func CalculateAABBDistanceTo(e2 Collider) (float32, float32) {
+	
 	var dx1 float32
 	var dy1 float32
 
