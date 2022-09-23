@@ -25,9 +25,9 @@ var (
 
 	frameCount int
 
-	velocityX    float32 = 3
-	velocityY    float32 = 0
-	gravity      float32 = 0.5
+	velocityX float32 = 3
+	velocityY float32 = 0
+	gravity   float32 = 0.5
 
 	musicPaused bool
 	music       rl.Music
@@ -38,9 +38,9 @@ var (
 
 	coinCount int
 
-	cam rl.Camera2D
+	cam      rl.Camera2D
 	gameOver bool = false
-	camera rl.Camera2D
+	camera   rl.Camera2D
 )
 
 func drawScene() {
@@ -89,7 +89,6 @@ func update() {
 	} else {
 		rl.ResumeMusicStream(music)
 	}
-
 
 	//CAMERA SETTINGS AND POSITIONING
 	cam.Target = rl.NewVector2(float32(playerDest.X+(playerDest.Width*2)), float32(258))
